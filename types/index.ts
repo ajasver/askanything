@@ -2,7 +2,7 @@ export enum OpenAIModel {
   DAVINCI_TURBO = "gpt-3.5-turbo"
 }
 
-export type PGEssay = {
+export type FerrisEpisode = {
   title: string;
   url: string;
   date: string;
@@ -10,25 +10,25 @@ export type PGEssay = {
   content: string;
   length: number;
   tokens: number;
-  chunks: PGChunk[];
+  chunks: FerrisChunk[];
 };
 
-export type PGChunk = {
-  essay_title: string;
-  essay_url: string;
-  essay_date: string;
-  essay_thanks: string;
+export type FerrisChunk = {
+  episode_title: string;
+  episode_url: string;
+  episode_date: string;
+  episode_thanks: string;
   content: string;
   content_length: number;
   content_tokens: number;
   embedding: number[];
 };
 
-export type PGJSON = {
+export type FerrisJSON = {
   current_date: string;
   author: string;
   url: string;
   length: number;
   tokens: number;
-  essays: PGEssay[];
+  files: string[];
 };
