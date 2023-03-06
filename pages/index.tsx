@@ -1,7 +1,7 @@
 import { Answer } from "@/components/Answer/Answer";
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
-import { PGChunk } from "@/types";
+import { FerrisChunk } from "@/types";
 import { IconArrowRight, IconExternalLink, IconSearch } from "@tabler/icons-react";
 import endent from "endent";
 import Head from "next/head";
@@ -11,14 +11,14 @@ export default function Home() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [query, setQuery] = useState<string>("");
-  const [chunks, setChunks] = useState<PGChunk[]>([]);
+  const [chunks, setChunks] = useState<FerrisChunk[]>([]);
   const [answer, setAnswer] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [mode, setMode] = useState<"search" | "chat">("chat");
   const [matchCount, setMatchCount] = useState<number>(5);
-  const [apiKey, setApiKey] = useState<string>("");
+  const [apiKey, setApiKey] = useState<string>("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");
 
   const handleSearch = async () => {
     if (!apiKey) {
@@ -49,7 +49,7 @@ export default function Home() {
       throw new Error(searchResponse.statusText);
     }
 
-    const results: PGChunk[] = await searchResponse.json();
+    const results: FerrisChunk[] = await searchResponse.json();
 
     setChunks(results);
 
@@ -89,13 +89,12 @@ export default function Home() {
       throw new Error(searchResponse.statusText);
     }
 
-    const results: PGChunk[] = await searchResponse.json();
+    const results: FerrisChunk[] = await searchResponse.json();
 
     setChunks(results);
 
     const prompt = endent`
-    Use the following passages to provide an answer to the query: "${query}"
-
+    Use the following passages in the form of a podcast transcript by Tim Ferris to provide an answer to the query: "${query}"
     ${results?.map((d: any) => d.content).join("\n\n")}
     `;
 
@@ -199,10 +198,10 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Paul Graham GPT</title>
+        <title>Tim Ferris Podcaster</title>
         <meta
           name="description"
-          content={`AI-powered search and chat for Paul Graham's essays.`}
+          content={`AI-powered search and chat for Tim Ferris's podcast.`}
         />
         <meta
           name="viewport"
@@ -348,12 +347,12 @@ export default function Home() {
                       <div className="mt-4 border border-zinc-600 rounded-lg p-4">
                         <div className="flex justify-between">
                           <div>
-                            <div className="font-bold text-xl">{chunk.essay_title}</div>
-                            <div className="mt-1 font-bold text-sm">{chunk.essay_date}</div>
+                            <div className="font-bold text-xl">{chunk.episode_title}</div>
+                            <div className="mt-1 font-bold text-sm">{chunk.episode_date}</div>
                           </div>
                           <a
                             className="hover:opacity-50 ml-2"
-                            href={chunk.essay_url}
+                            href={chunk.episode_url}
                             target="_blank"
                             rel="noreferrer"
                           >
@@ -374,12 +373,12 @@ export default function Home() {
                     <div className="mt-4 border border-zinc-600 rounded-lg p-4">
                       <div className="flex justify-between">
                         <div>
-                          <div className="font-bold text-xl">{chunk.essay_title}</div>
-                          <div className="mt-1 font-bold text-sm">{chunk.essay_date}</div>
+                          <div className="font-bold text-xl">{chunk.episode_title}</div>
+                          <div className="mt-1 font-bold text-sm">{chunk.episode_date}</div>
                         </div>
                         <a
                           className="hover:opacity-50 ml-2"
-                          href={chunk.essay_url}
+                          href={chunk.episode_url}
                           target="_blank"
                           rel="noreferrer"
                         >
@@ -392,7 +391,7 @@ export default function Home() {
                 ))}
               </div>
             ) : (
-              <div className="mt-6 text-center text-lg">{`AI-powered search & chat for Paul Graham's essays.`}</div>
+              <div className="mt-6 text-center text-lg">{`AI-powered search & chat for Tim Ferris's essays.`}</div>
             )}
           </div>
         </div>

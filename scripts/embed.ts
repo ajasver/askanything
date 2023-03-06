@@ -12,8 +12,9 @@ const generateEmbeddings = async (episodes: FerrisEpisode[]) => {
 
   const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
-  for (let i = 55; i < episodes.length; i++) {
+  for (let i = 115; i < episodes.length; i++) {
     const section = episodes[i];
+
 
     for (let j = 0; j < section.chunks.length; j++) {
       const chunk = section.chunks[j];
@@ -24,13 +25,12 @@ const generateEmbeddings = async (episodes: FerrisEpisode[]) => {
       const episode_id = i
       const chunk_id = j
 
-      //check if episode is already in supabase based on url, content_length, and content_tokens
+      //check if episode is already in supabase based on episode_id and chunk_id then skip to the next episode
       const { data: existing, error: existingError } = await supabase
-        .from("episode-embeddings")
+        .from("episode_embeddings")
         .select("*")
-        .eq("episode_url", episode_url)
-        .eq("content_length", content_length)
-        .eq("content_tokens", content_tokens);
+        .eq("episode_id", episode_id)
+        .eq("chunk_id", chunk_id)
 
       let embedding = null;
     
@@ -44,7 +44,7 @@ const generateEmbeddings = async (episodes: FerrisEpisode[]) => {
         
         //now insert the embedding into supabase
         const { data, error } = await supabase
-          .from("episode-embeddings")
+          .from("episode_embeddings")
           .insert({
             episode_title,
             episode_url,
@@ -67,31 +67,34 @@ const generateEmbeddings = async (episodes: FerrisEpisode[]) => {
           await new Promise((resolve) => setTimeout(resolve, 200));
       } else {
         console.log("already in supabase", i, j, episode_url);
+
+        //if the episode exists then just skip to the next episode.
+        j = section.chunks.length
         //if episode is in supabase then make the embedding the existing embedding in supabase
-        embedding = existing[0].embedding;
+        // embedding = existing[0].embedding;
 
-        //now update the embedding in supabase
-        const { data, error } = await supabase
-          .from("episode-embeddings")
-          .update({
-            episode_title,
-            episode_url,
-            episode_date,
-            content,
-            content_length,
-            content_tokens,
-            embedding,
-            host_name,
-            episode_id,
-            chunk_id
-          })
-          .eq("id", existing[0].id )
+        // //now update the embedding in supabase
+        // const { data, error } = await supabase
+        //   .from("episode_embeddings")
+        //   .update({
+        //     episode_title,
+        //     episode_url,
+        //     episode_date,
+        //     content,
+        //     content_length,
+        //     content_tokens,
+        //     embedding,
+        //     host_name,
+        //     episode_id,
+        //     chunk_id
+        //   })
+        //   .eq("id", existing[0].id )
 
-          if (error) {
-            console.log("error", error);
-          } else {
-            console.log("updated", i, j, episode_url);
-          }
+        //   if (error) {
+        //     console.log("error", error);
+        //   } else {
+        //     console.log("updated", i, j, episode_url);
+        //   }
       }
 
 
