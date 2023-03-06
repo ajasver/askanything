@@ -10,43 +10,23 @@ export const Footer: FC = () => {
         Created by
         <a
           className="hover:opacity-50 mx-1"
-          href="https://twitter.com/mckaywrigley"
+          href="https://hitchhikersguidetoai.com"
           target="_blank"
           rel="noreferrer"
         >
-          Mckay Wrigley
+          The Hitchhikers
         </a>
-        based on the essays of
+        based on the podcasts of
         <a
           className="hover:opacity-50 ml-1"
-          href="https://twitter.com/paulg"
+          href="timferriss.com"
           target="_blank"
           rel="noreferrer"
         >
-          Paul Graham
+          Tim Ferriss
         </a>
-        .
+        
       </div>
 
-      <div className="flex space-x-4">
-        <a
-          className="flex items-center hover:opacity-50"
-          href="https://twitter.com/mckaywrigley"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <IconBrandTwitter size={24} />
-        </a>
-
-        <a
-          className="flex items-center hover:opacity-50"
-          href="https://github.com/mckaywrigley/paul-graham-gpt"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <IconBrandGithub size={24} />
-        </a>
-      </div>
-    </div>
   );
 };
