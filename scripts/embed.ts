@@ -6,13 +6,40 @@ import { Configuration, OpenAIApi } from "openai";
 
 loadEnvConfig("");
 
-const generateEmbeddings = async (episodes: FerrisEpisode[]) => {
+//embed the content with openAI and return the embedding, try max 3 times
+const embedWithOpenAI = async (content: string, attempt = 0) => {
+  //if we've tried 3 times then return null
+  if (attempt > 3) {  
+    return null;
+  }
+
   const configuration = new Configuration({ apiKey: process.env.OPENAI_API_KEY });
   const openai = new OpenAIApi(configuration);
 
+  let embeddingResponse = null;
+  let embedding = null;
+
+  try {
+    const embeddingResponse = await openai.createEmbedding({
+      model: "text-embedding-ada-002",
+      input: content
+    });
+    [{ embedding }] = embeddingResponse.data.data;
+  } catch (error) {
+    console.log("error", error);
+    console.log("retrying in 2 seconds");
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    //retry recursively
+    return embedWithOpenAI(content, attempt + 1);
+  }
+  return embedding;
+}
+
+const generateEmbeddings = async (episodes: FerrisEpisode[]) => {
+  
   const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
-  for (let i = 115; i < episodes.length; i++) {
+  for (let i = 140; i < episodes.length; i++) {
     const section = episodes[i];
 
 
@@ -32,16 +59,12 @@ const generateEmbeddings = async (episodes: FerrisEpisode[]) => {
         .eq("episode_id", episode_id)
         .eq("chunk_id", chunk_id)
 
-      let embedding = null;
+      let embedding = null
     
       //if episode isn't in supabase then embed it
       if (existing == null || existing.length == 0) {
-        const embeddingResponse = await openai.createEmbedding({
-          model: "text-embedding-ada-002",
-          input: content
-        });
-        [{ embedding }] = embeddingResponse.data.data;
-        
+        //embed the content, but catch errors from openAI and wait an retry
+        embedding = await embedWithOpenAI(content);
         //now insert the embedding into supabase
         const { data, error } = await supabase
           .from("episode_embeddings")

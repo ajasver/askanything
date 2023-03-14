@@ -27,6 +27,6 @@ export const Footer: FC = () => {
         </a>
         
       </div>
-
+    </div>
   );
 };

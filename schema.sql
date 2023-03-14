@@ -2,30 +2,32 @@
 create extension vector;
 
 -- RUN 2nd
-create table pg (
+create table episode_embeddings (
   id bigserial primary key,
-  essay_title text,
-  essay_url text,
-  essay_date text,
-  essay_thanks text,
+  episode_title text,
+  episode_url text,
+  episode_date text,
+  episode_thanks text,
   content text,
   content_length bigint,
   content_tokens bigint,
+  chunk_id bigint,
+  episode_id bigint,
   embedding vector (1536)
 );
 
 -- RUN 3rd after running the scripts
-create or replace function pg_search (
+create or replace function embed_search (
   query_embedding vector(1536),
   similarity_threshold float,
   match_count int
 )
 returns table (
   id bigint,
-  essay_title text,
-  essay_url text,
-  essay_date text,
-  essay_thanks text,
+  episode_title text,
+  episode_url text,
+  episode_date text,
+  episode_thanks text,
   content text,
   content_length bigint,
   content_tokens bigint,
@@ -33,26 +35,27 @@ returns table (
 )
 language plpgsql
 as $$
+
 begin
   return query
   select
-    pg.id,
-    pg.essay_title,
-    pg.essay_url,
-    pg.essay_date,
-    pg.essay_thanks,
-    pg.content,
-    pg.content_length,
-    pg.content_tokens,
-    1 - (pg.embedding <=> query_embedding) as similarity
-  from pg
-  where 1 - (pg.embedding <=> query_embedding) > similarity_threshold
-  order by pg.embedding <=> query_embedding
+    episode_embeddings.id,
+    episode_embeddings.episode_title,
+    episode_embeddings.episode_url,
+    episode_embeddings.episode_date,
+    episode_embeddings.content,
+    episode_embeddings.content_length,
+    episode_embeddings.content_tokens,
+    1 - (episode_embeddings.embedding <=> query_embedding) as similarity
+  from episode_embeddings
+  where 1 - (episode_embeddings.embedding <=> query_embedding) > similarity_threshold
+  order by episode_embeddings.embedding <=> query_embedding
   limit match_count;
 end;
+
 $$;
 
 -- RUN 4th
-create index on pg 
+create index on embed_search
 using ivfflat (embedding vector_cosine_ops)
 with (lists = 100);
